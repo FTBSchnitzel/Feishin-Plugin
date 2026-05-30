@@ -36,6 +36,18 @@
             "PropertyInspectorPath": "propertyinspector/index.html"
         },
         {
+            "Icon": "actions/images/ppactionIcon",
+            "Name": "Cover",
+            "States": [
+                {
+                    "Image": "actions/images/ppactionIcon"
+                }
+            ],
+            "Tooltip": "Gets the cover",
+            "UUID": "de.felitendo.feishin.albumart"
+            "PropertyInspectorPath": "propertyinspector/index.html"
+        },
+        {
             "Icon": "actions/images/nextactionIcon",
             "Name": "Next",
             "States": [
