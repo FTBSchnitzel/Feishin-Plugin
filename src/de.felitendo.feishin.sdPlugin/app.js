@@ -4,12 +4,14 @@
 const FEISHIN_WS_URL = 'ws://localhost:4333'; // Default URL, make this configurable
 let feishinWs = null;
 let currentPlaybackStatus = 'PAUSED'; // Default to paused
+let currentSong = null;
 
 const playPauseAction = new Action('de.felitendo.feishin.playpause');
 const nextAction = new Action('de.felitendo.feishin.next');
 const previousAction = new Action('de.felitendo.feishin.previous');
 const shuffleAction = new Action('de.felitendo.feishin.shuffle');
 const repeatAction = new Action('de.felitendo.feishin.repeat');
+const albumArtAction = new Action('de.felitendo.feishin.albumart');
 
 /**
  * The first event fired when Stream Deck starts
@@ -54,22 +56,59 @@ function authenticate(username, password) {
 
 function handleFeishinMessage(data) {
     console.log('Received message from Feishin:', data);
+
     switch(data.event) {
         case 'state':
             updateAllButtons(data.data);
             break;
+
         case 'playback':
             updatePlayPauseButton(data.data);
             break;
+
         case 'shuffle':
             updateShuffleButton(data.data);
             break;
+
         case 'repeat':
             updateRepeatButton(data.data);
             break;
+
+        case 'song':
+            updateAlbumArt(data.data);
+            break;
     }
 }
+async function updateAlbumArt(song) {
+    if (!song || !song.imageUrl) {
+        return;
+    }
 
+    currentSong = song;
+
+    try {
+        const response = await fetch(song.imageUrl);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const blob = await response.blob();
+
+        const reader = new FileReader();
+
+        reader.onloadend = function() {
+            const dataUrl = reader.result;
+
+            // replace this action UUID with your album art action
+            albumArtAction.setImage(dataUrl);
+        };
+
+        reader.readAsDataURL(blob);
+    } catch (err) {
+        console.error('Failed to load album art:', err);
+    }
+}
 function updateAllButtons(state) {
     updatePlayPauseButton(state.status);
     updateShuffleButton(state.shuffle);
